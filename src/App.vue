@@ -1,26 +1,38 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <el-container>
+    <el-aside width="200px">
+      <el-menu :default-active="activeIndex" class="el-menu-vertical-demo" router>
+        <el-menu-item index="1" :route="{ path: '/' }">肿瘤检测</el-menu-item>
+        <el-menu-item index="2" :route="{ path: '/model-performance' }">模型性能</el-menu-item>
+      </el-menu>
+    </el-aside>
+    <el-container>
+      <el-main>
+        <input type="file" ref="fileInput" style="display: none;" />
+        <router-view />
+      </el-main>
+    </el-container>
+  </el-container>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  computed: {
+    activeIndex() {
+      return this.$route.path === '/' ? '1' : '2';
+    }
+  },
+  methods: {
+    navigateTo(path) {
+      this.$router.push(path);
+    }
   }
-}
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.el-menu-vertical-demo {
+  height: 100%;
+  border-right: 0;
 }
 </style>
