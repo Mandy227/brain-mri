@@ -8,10 +8,10 @@
             <model-list-selection ref="modelListSelection"/>
           </el-col>
           <el-col :span="8">
-            <el-button type="primary" @click="fetchAndDisplayPerformanceComparison">多模型性能对比</el-button>
+            <el-button type="primary" class="custom-button" @click="fetchAndDisplayPerformanceComparison">多模型性能对比</el-button>
           </el-col>
         </el-row>
-        <el-row :gutter="20" style="margin-top: 20px;">
+        <el-row :gutter="20" >
           <el-col :span="20">
             <image-displaynew :imageUrls="comparisonImage1" style="margin-top: 20px;"/>
           </el-col>
@@ -29,12 +29,12 @@
             <index-selection ref="indexSelection"/>
           </el-col>
           <el-col :span="6">
-            <el-button type="primary" @click="modelstartTraining">开始训练</el-button>
+            <el-button type="primary" class="custom-button" @click="modelstartTraining">开始训练</el-button>
           </el-col>
         </el-row>
-        <el-row :gutter="20" style="margin-top: 20px;">
+        <el-row :gutter="20" >
           <el-col :span="20">
-            <image-displaynew :imageUrls="comparisonImage2" style="margin-left: 40px;margin-top:25px;" />
+            <image-displaynew :imageUrls="comparisonImage2" style="margin-left: 40px;margin-top:20px;" />
           </el-col>
         </el-row>
       </el-col>
@@ -42,19 +42,15 @@
     <h2>不同方法对比</h2>
     <el-row :gutter="20">
       <el-col :span="4">
-        <el-button type="primary" @click="openDirectory">选择图片</el-button>
-        <input type="file" ref="fileInput" style="display: none;" @change="uploadImage" multiple accept=".tif,.jpg,.png">
+        <image-up-test />
+        <!-- <el-button type="primary" class="custom-button" @click="openDirectory">选择图片</el-button>
+        <input type="file" ref="fileInput" style="display: none;" @change="uploadImage" multiple accept=".tif,.jpg,.png"> -->
       </el-col>
       <el-col :span="4">
-        <el-button type="primary" @click="fetchAndDisplayComparisonImage">对比展示</el-button>
+        <el-button type="primary" class="custom-button" @click="fetchAndDisplayComparisonImage">对比展示</el-button>
       </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :span="6">
-        <image-displaynew :imageUrls="comparisonImageArray1" style="margin-top: 20px;"/>
-      </el-col>
-      <el-col :span="18">
-        <iamge-displays :imageUrls="comparisonImageArray" style="margin-top: 20px;"/>
+      <el-col :span="16">
+        <iamge-displays :imageUrls="comparisonImageArray"/>
       </el-col>
     </el-row>
   </div>
@@ -68,6 +64,7 @@ import ModelListSelection from '@/components/ModelListSelection.vue';
 import IamgeDisplays from '@/components/IamgeDisplays.vue';
 import ImageDisplaynew from '@/components/ImageDisplaynew.vue';
 import axios from 'axios';
+import ImageUpTest from '@/components/ImageUpTest.vue';
 
 export default {
   components: {
@@ -76,7 +73,8 @@ export default {
     ParameterSelection,
     IndexSelection,
     IamgeDisplays,
-    ImageDisplaynew
+    ImageDisplaynew,
+    ImageUpTest
   },
   data() {
     return {
@@ -316,9 +314,13 @@ export default {
 
 <style scoped>
 h1, h2 {
-  font-size: 24px;
+  font-size: 22px;
+  margin-bottom: 30px;
 }
 h2 {
   margin-top: 60px;
+}
+.custom-button {
+  background-color: #235f9a;
 }
 </style>
