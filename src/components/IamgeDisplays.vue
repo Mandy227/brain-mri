@@ -29,7 +29,7 @@ export default {
 <style scoped>
 .image-display {
   width: 100%;
-  height: 200px; 
+  height: 300px; 
   display: flex;
   flex-direction: column; 
   justify-content: center; 
@@ -49,7 +49,7 @@ export default {
 }
 
 .gallery-image-container {
-  flex: 0 0 25%; 
+  flex: 0 0 50%; 
   display: flex;
   justify-content: center;
   align-items: center;
@@ -62,3 +62,4 @@ export default {
   display: block;
 }
 </style>
+

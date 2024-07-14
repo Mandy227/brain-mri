@@ -26,5 +26,15 @@ module.exports = defineConfig({
         } 
       } 
     } 
-  } 
+  } ,
+  configureWebpack: {
+    resolve: {
+      fallback: {
+        fs: false, // fs 模块在浏览器环境中不可用，设置为 false
+        path: require.resolve("path-browserify"), // 使用 path-browserify polyfill
+        crypto: require.resolve("crypto-browserify") ,// 使用 crypto-browserify polyfill
+        stream: require.resolve("stream-browserify")
+      }
+    }
+  }
 })

@@ -8,10 +8,10 @@
             <model-list-selection ref="modelListSelection"/>
           </el-col>
           <el-col :span="8">
-            <el-button type="primary" @click="fetchAndDisplayPerformanceComparison">多模型性能对比</el-button>
+            <el-button type="primary" class="custom-button" @click="fetchAndDisplayPerformanceComparison">多模型性能对比</el-button>
           </el-col>
         </el-row>
-        <el-row :gutter="20" style="margin-top: 20px;">
+        <el-row :gutter="20" >
           <el-col :span="20">
             <image-displaynew :imageUrls="comparisonImage1" style="margin-top: 20px;"/>
           </el-col>
@@ -29,12 +29,12 @@
             <index-selection ref="indexSelection"/>
           </el-col>
           <el-col :span="6">
-            <el-button type="primary" @click="modelstartTraining">开始训练</el-button>
+            <el-button type="primary" class="custom-button" @click="modelstartTraining">开始训练</el-button>
           </el-col>
         </el-row>
-        <el-row :gutter="20" style="margin-top: 20px;">
+        <el-row :gutter="20" >
           <el-col :span="20">
-            <image-displaynew :imageUrls="comparisonImage2" style="margin-left: 40px;margin-top:25px;" />
+            <image-displaynew :imageUrls="comparisonImage2" style="margin-left: 40px;margin-top:20px;" />
           </el-col>
         </el-row>
       </el-col>
@@ -42,19 +42,15 @@
     <h2>不同方法对比</h2>
     <el-row :gutter="20">
       <el-col :span="4">
-        <el-button type="primary" @click="openDirectory">选择图片</el-button>
-        <input type="file" ref="fileInput" style="display: none;" @change="uploadImage" multiple accept=".tif,.jpg,.png">
+        <image-up-test @image-uploaded="handleImageUploaded"/>
+        <!-- <el-button type="primary" class="custom-button" @click="openDirectory">选择图片</el-button>
+        <input type="file" ref="fileInput" style="display: none;" @change="uploadImage" multiple accept=".tif,.jpg,.png"> -->
       </el-col>
       <el-col :span="4">
-        <el-button type="primary" @click="fetchAndDisplayComparisonImage">对比展示</el-button>
+        <el-button type="primary" class="custom-button" @click="fetchAndDisplayComparisonImage">对比展示</el-button>
       </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :span="6">
-        <image-displaynew :imageUrls="comparisonImageArray1" style="margin-top: 20px;"/>
-      </el-col>
-      <el-col :span="18">
-        <iamge-displays :imageUrls="comparisonImageArray" style="margin-top: 20px;"/>
+      <el-col :span="16">
+        <iamge-displays :imageUrls="comparisonImageArray"/>
       </el-col>
     </el-row>
   </div>
@@ -68,6 +64,7 @@ import ModelListSelection from '@/components/ModelListSelection.vue';
 import IamgeDisplays from '@/components/IamgeDisplays.vue';
 import ImageDisplaynew from '@/components/ImageDisplaynew.vue';
 import axios from 'axios';
+import ImageUpTest from '@/components/ImageUpTest.vue';
 
 export default {
   components: {
@@ -76,7 +73,8 @@ export default {
     ParameterSelection,
     IndexSelection,
     IamgeDisplays,
-    ImageDisplaynew
+    ImageDisplaynew,
+    ImageUpTest
   },
   data() {
     return {
@@ -85,6 +83,7 @@ export default {
       comparisonImage3: '',
       comparisonImageArray:[],
       comparisonImageArray1:[],
+      uploadedImage: '',
     };
   },
   methods: {
@@ -147,27 +146,16 @@ export default {
           console.error("请求配置:", error.config);
         });
     },
-    // async fetchAndDisplayComparisonImages() {
-    //   try {
-    //     const response = await fetch('/comparison-images', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({ imageUrl: imageUrl })
-    //     });
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok');
-    //     }
-    //     const data = await response.json();
-    //     this.comparisonImageArray = data.urls;
-    //   } catch (error) {
-    //     console.error('There has been a problem with your fetch operation:', error);
-    //   }
-    // },
+    handleImageUploaded(imageSrc) {
+      this.uploadedImage = imageSrc; // 存储上传的图片数据
+    },
     fetchAndDisplayComparisonImages() {
+      if (!this.uploadedImage) {
+        console.error('No image uploaded.');
+        return;
+      }
       const requestData = {
-        images: this.comparisonImageArray1
+        image: this.uploadedImage // 使用上传的图片作为请求数据
       };
       axios.post("/comparison-images", requestData)
         .then(response => {
@@ -196,25 +184,6 @@ export default {
           console.log(error.config);
         });
     },
-    // async fetchAndDisplayPerformanceComparison() {
-    //   const selectedModels = this.$refs.modelListSelection.selectedModels;
-    //   try {
-    //     const response = await fetch('/performance-comparison', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify({ models: selectedModels })
-    //     });
-    //     if (!response.ok) {
-    //       throw new Error('网络响应不正确');
-    //     }
-    //     const data = await response.json();
-    //     this.comparisonImage1 = data.url;
-    //   } catch (error) {
-    //     console.error('获取多模型性能对比图像时出现错误:', error);
-    //   }
-    // },
     fetchAndDisplayPerformanceComparison() {
       const selectedModels = this.$refs.modelListSelection.selectedModels;
       const requestData = {
@@ -247,32 +216,6 @@ export default {
           console.log(error.config);
         });
     },
-    // async modelstartTraining() {
-    //   const modelSelection = this.$refs.modelSelection.selectedModel;
-    //   const parameterSelection = this.$refs.parameterSelection.selectedModel;
-    //   const indexSelection = this.$refs.indexSelection.selectedModels;
-    //   const payload = {
-    //     model: modelSelection,
-    //     parameters: parameterSelection,
-    //     index: indexSelection
-    //   };
-    //   try {
-    //     const response = await fetch('/model-train', {
-    //       method: 'POST',
-    //       headers: {
-    //         'Content-Type': 'application/json'
-    //       },
-    //       body: JSON.stringify(payload)
-    //     });
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok');
-    //     }
-    //     const data = await response.json();
-    //     this.comparisonImage2 = data.url;
-    //   } catch (error) {
-    //     console.error('训练过程中出现错误:', error);
-    //   }
-    // },
     modelstartTraining() {
       const modelSelection = this.$refs.modelSelection.selectedModel;
       const parameterSelection = this.$refs.parameterSelection.selectedModel;
@@ -316,9 +259,13 @@ export default {
 
 <style scoped>
 h1, h2 {
-  font-size: 24px;
+  font-size: 22px;
+  margin-bottom: 30px;
 }
 h2 {
   margin-top: 60px;
+}
+.custom-button {
+  background-color: #235f9a;
 }
 </style>
