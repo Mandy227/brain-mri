@@ -42,7 +42,7 @@
     <h2>不同方法对比</h2>
     <el-row :gutter="20">
       <el-col :span="4">
-        <image-up-test @image-uploaded="handleImageUploaded"/>
+        <image-up-test @image-uploaded="handleImageUploaded"></image-up-test>
         <!-- <el-button type="primary" class="custom-button" @click="openDirectory">选择图片</el-button>
         <input type="file" ref="fileInput" style="display: none;" @change="uploadImage" multiple accept=".tif,.jpg,.png"> -->
       </el-col>
@@ -50,7 +50,7 @@
         <el-button type="primary" class="custom-button" @click="fetchAndDisplayComparisonImage">对比展示</el-button>
       </el-col>
       <el-col :span="16">
-        <iamge-displays :imageUrls="comparisonImageArray"/>
+        <image-displays :imageUrls="comparisonImageArray"/>
       </el-col>
     </el-row>
   </div>
@@ -61,7 +61,7 @@ import ModelSelection from '../components/ModelSelection.vue';
 import ParameterSelection from '../components/ParameterSelection.vue';
 import IndexSelection from '@/components/IndexSelection.vue';
 import ModelListSelection from '@/components/ModelListSelection.vue';
-import IamgeDisplays from '@/components/IamgeDisplays.vue';
+import ImageDisplays from '@/components/ImageDisplays.vue';
 import ImageDisplaynew from '@/components/ImageDisplaynew.vue';
 import axios from 'axios';
 import ImageUpTest from '@/components/ImageUpTest.vue';
@@ -72,7 +72,7 @@ export default {
     ModelListSelection,
     ParameterSelection,
     IndexSelection,
-    IamgeDisplays,
+    ImageDisplays,
     ImageDisplaynew,
     ImageUpTest
   },

@@ -15,6 +15,8 @@
 </template>
 
 <script>
+
+import Tiff from 'tiff.js';
 export default {
   data() {
     return {
@@ -29,10 +31,23 @@ export default {
       }
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.imageSrc = e.target.result;
-        this.$emit('image-uploaded', this.imageSrc); // 发射事件，通知父组件图片已上传
+        // 使用tif.js来处理tif文件
+        const tiff = new Tiff({ buffer: e.target.result });
+        const canvas = tiff.toCanvas();
+        if (canvas) {
+          this.imageSrc = canvas.toDataURL('image/png');
+          console.log('Image Base64:', this.imageSrc);
+          this.$emit('image-uploaded', this.imageSrc); // 发射事件，通知父组件图片已上传
+        } else {
+          console.error('无法加载图片，请尝试其他图片或格式。');
+          alert('无法加载图片，请尝试其他图片或格式。'); // 提示用户
+        }
       };
-      reader.readAsDataURL(file);
+      reader.onerror = (error) => {
+        console.error('文件读取失败:', error);
+        alert('文件读取失败，请重试。'); // 提示用户
+      };
+      reader.readAsArrayBuffer(file); // 读取为ArrayBuffer以供tif.js处理
     },
     getUploadedImage() {
       return this.imageSrc; // 返回上传的图片的Base64编码

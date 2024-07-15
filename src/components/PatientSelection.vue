@@ -17,7 +17,7 @@ export default {
     return {
       selectedModel: '',
       models: [
-        { value: 'model1', label: 'TCGA_CS_4941_19960909' },
+        { value: 'TCGA_CS_4941_19960909', label: 'TCGA_CS_4941_19960909' },
         { value: 'model2', label: 'TCGA_CS_4942_19970222' },
         { value: 'model3', label: 'TCGA_CS_4943_20000902' },
         { value: 'model4', label: 'TCGA_CS_4944_20010208' },

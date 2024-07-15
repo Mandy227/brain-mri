@@ -31,15 +31,15 @@
     <el-row :gutter="20" style="margin-top: 20px;">
       <el-col :span="8">
         <div style="text-align: center; margin-top: 10px;">原始图像</div>
-        <iamge-displays :imageUrls="comparisonImageArray" style="margin-top: 20px;"/>
+        <image-displays :base64Images="comparisonImageArray" style="margin-top: 20px;"/>
       </el-col>
       <el-col :span="8">
         <div style="text-align: center; margin-top: 10px;">mask图像</div>
-        <iamge-displays :imageUrls="comparisonImageArray4" style="margin-top: 20px;"/>
+        <image-displays :base64Images="comparisonImageArray4" style="margin-top: 20px;"/>
       </el-col>
       <el-col :span="8">
         <div style="text-align: center; margin-top: 10px;">预测图像</div>
-        <iamge-displays :imageUrls="comparisonImageArray5" style="margin-top: 20px;" />
+        <image-displays :base64Images="comparisonImageArray5" style="margin-top: 20px;" />
       </el-col>
     </el-row>
     <el-row :gutter="70" style="margin-top: 20px;">
@@ -49,7 +49,7 @@
             <el-button type="primary" class="custom-button" @click="fetchAndDisplayWholeBrainTumorImage" style="margin-top:40px;">全脑空间肿瘤</el-button>
           </el-col>
         </el-row>
-        <iamge-displays :imageUrls="comparisonImageArray2" style="margin-top: 20px;"/>
+        <image-displays :base64Images="comparisonImageArray2" style="margin-top: 20px;"/>
       </el-col>
       <el-col :span="12">
         <el-row :gutter="20">
@@ -60,25 +60,37 @@
           <!-- <div>
             <vtk-view :modelUrl="'/path/to/your/model.vtk'"></vtk-view>
           </div> -->
-          <iamge-displays :imageUrls="comparisonImageArray1" style="margin-top: 20px;"/>
+          <image-displays :base64Images="comparisonImageArray1" style="margin-top: 20px;"/>
       </el-col>
     </el-row>
+    <el-row >
+      <TiffImageDisplay style="margin-top: 20px;"/>
+    </el-row>
   </div>
+  <image-displays :base64Images="base64ImagesArray" />
+  <test-try @images-fetched="handleImagesFetched"></test-try>
 </template>
 
 <script>
 import ModelSelection from '../components/ModelSelection.vue';
 import ParameterSelection from '../components/ParameterSelection.vue';
-import IamgeDisplays from '../components/IamgeDisplays.vue';
+import ImageDisplays from '../components/ImageDisplays.vue';
 import axios from 'axios';
 import PatientSelection from '../components/PatientSelection.vue';
+// import ImageDisplay from '@/components/ImageDisplay.vue';
 // import VtkView from '@/components/VtkView.vue';
+import TestTry from '@/components/TestTry.vue';
+import TiffImageDisplay from '../components/TiffImageDisplay.vue';
+
 export default {
   components: {
     ModelSelection,
     ParameterSelection,
-    IamgeDisplays,
+    ImageDisplays,
     PatientSelection,
+    TestTry,
+    TiffImageDisplay
+    // ImageDisplay,
     // VtkView
   },
   data() {
@@ -93,7 +105,15 @@ export default {
       comparisonImageArray3:[],
       comparisonImageArray4:[],
       comparisonImageArray5:[],
-      // comparisonImageArray5:["https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","https://pic.quanjing.com/2x/8i/QJ9108260827.jpg@!350h","D:/Brain-MRI-segmentation/exercise3.jpg"],
+      base64ImagesArray: [
+        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
+        "data:image/png;base64,R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uLiwAAAP///yH5B…EoqQqJKAIBaQOVKHAXr3t7txgBjboSvB8EpLoFZywOAo3LFE5lYs/QW9LT1TRk1V7S2xYJADs="
+        // 更多Base64编码的图片
+      ],
     };
   },
   mounted() {
@@ -147,12 +167,14 @@ export default {
       const requestData = {
         patient: patientSelection
       };
+      console.log(requestData);
       axios.post("/datadisplay", requestData)
         .then(response => {
           console.log("得到回应", response.data);
           if (response.data.code == "1") {
-            this.comparisonImageArray = response.data.result_image_urls1;
-            this.comparisonImageArray4 = response.data.result_image_urls2;
+            // 将Base64编码的图片数组赋值给组件的props
+            this.comparisonImageArray = response.data[1][0];//response.data.result_image1返回Base64编码的字符串数组
+            this.comparisonImageArray4 = response.data[0];
           } else if (response.data.code == "-1") {
             console.log(response.data.message);
           } else {

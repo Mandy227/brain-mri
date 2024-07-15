@@ -1,8 +1,8 @@
 <template>
   <div class="image-display">
-    <div v-if="imageUrls && imageUrls.length > 0" class="image-gallery">
-      <div v-for="(url, index) in imageUrls" :key="index" class="gallery-image-container">
-        <img :src="url" alt="Uploaded Image" class="gallery-image" />
+    <div v-if="base64Images && base64Images.length > 0" class="image-gallery">
+      <div v-for="(base64Image, index) in base64Images" :key="index" class="gallery-image-container">
+        <img :src="base64Image" alt="Uploaded Image" class="gallery-image" />
       </div>
     </div>
     <div v-else>等待图片上传</div>
@@ -12,16 +12,16 @@
 <script>
 export default {
   props: {
-    imageUrls: {
+    base64Images: {
       type: Array,
       default: () => []
     }
   },
   mounted() {
-    console.log('ImageDisplay imageUrls:', this.imageUrls);
+    console.log('ImageDisplay base64Images:', this.base64Images);
   },
   updated() {
-    console.log('ImageDisplay imageUrls updated:', this.imageUrls);
+    console.log('ImageDisplay base64Images updated:', this.base64Images);
   },
 };
 </script>
@@ -62,4 +62,3 @@ export default {
   display: block;
 }
 </style>
-

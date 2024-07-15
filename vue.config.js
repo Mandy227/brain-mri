@@ -36,5 +36,16 @@ module.exports = defineConfig({
         stream: require.resolve("stream-browserify")
       }
     }
+  },
+  chainWebpack: config => {
+    config.module
+      .rule('tif')
+      .test(/\.tif$/)
+      .use('file-loader')
+      .loader('file-loader')
+      .options({
+        name: 'images/[name].[hash:8].[ext]'
+      })
+      .end();
   }
 })
