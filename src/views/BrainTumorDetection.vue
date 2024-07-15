@@ -143,7 +143,7 @@ export default {
     //     });
     // },
     datadisplay() {
-      const patientSelection = this.patientSelection;
+      const patientSelection = this.$refs.patientSelection.selectedModel;
       const requestData = {
         patient: patientSelection
       };
