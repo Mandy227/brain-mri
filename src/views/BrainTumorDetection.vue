@@ -8,7 +8,8 @@
             <patient-selection ref="patientSelection"/>
           </el-col>
           <el-col :span="4">
-            <el-button type="primary" class="custom-button" @click="datadisplay">数据展示</el-button>  
+            <el-button type="primary" class="custom-button" @click="fetchData">数据展示</el-button>  
+            
             <!-- <el-button type="primary" class="custom-button" @click="openDirectory1">打开目录</el-button>
             <input type="file" ref="fileInput1" style="display: none;" @change="uploadImages1" multiple accept=".tif,.jpg,.png"> -->
           </el-col>
@@ -69,6 +70,20 @@
   </div>
   <image-displays :base64Images="base64ImagesArray" />
   <test-try @images-fetched="handleImagesFetched"></test-try>
+  <!-- 展示图像 -->
+  <div>
+    <div v-for="(pngUrl, index) in displayImages" :key="index">
+      <img :src="pngUrl" alt="Converted Image" />
+    </div>
+      <!-- <div v-for="(image, index) in imageFiles" :key="index">
+        <img :src="'http://localhost:5000/image/' + patientId + '/' + image" alt="Image">
+      </div> -->
+    </div>
+    
+    <div v-for="(pngUrl, index) in displayMasks" :key="index">
+      <img :src="pngUrl" alt="Converted Mask" />
+    </div>
+
 </template>
 
 <script>
@@ -89,12 +104,13 @@ export default {
     ImageDisplays,
     PatientSelection,
     TestTry,
-    TiffImageDisplay
+    TiffImageDisplay,
     // ImageDisplay,
     // VtkView
   },
   data() {
     return {
+      patientId: '',
       imageUrl1: [],
       imageUrl2: '',
       imageUrl3: '',
@@ -114,6 +130,8 @@ export default {
         "data:image/png;base64,R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uLiwAAAP///yH5B…EoqQqJKAIBaQOVKHAXr3t7txgBjboSvB8EpLoFZywOAo3LFE5lYs/QW9LT1TRk1V7S2xYJADs="
         // 更多Base64编码的图片
       ],
+      imageFiles: [],
+      maskFiles: [],
     };
   },
   mounted() {
@@ -162,6 +180,35 @@ export default {
     //       console.error("请求配置:", error.config);
     //     });
     // },
+    fetchData() {
+      this.loading = true;
+      this.error = null;
+      this.patientId = this.$refs.patientSelection.selectedModel;
+      const patientSelection = this.$refs.patientSelection.selectedModel;
+      const url = `http://localhost:5000/datadisplay?patient=${encodeURIComponent(patientSelection)}`;
+      console.log("url", url);
+      axios.get(url)
+        .then(response => {
+          // 处理响应数据
+          console.log("这是imageFiles", response.data.images);
+          // 假设后端返回的数据格式是 { data: 'some data' }
+          // 这里根据实际返回的数据格式来更新状态
+          this.imageFiles = response.data.images;
+          this.maskFiles = response.data.mask_images;
+        })
+        .catch(err => {
+          // 处理错误情况
+          console.error(err);
+          this.error = err.message;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    getPngUrl(patientId, image) {
+      // 构造转换 URL
+      return `http://localhost:5000/convert-tiff-to-png/${patientId}/${image}`;
+    },
     datadisplay() {
       const patientSelection = this.$refs.patientSelection.selectedModel;
       const requestData = {
@@ -287,7 +334,15 @@ export default {
           console.log(error.config);
         });
     }
-  }
+  },
+  computed: {
+    displayImages() {
+      return this.imageFiles.map(file => this.getPngUrl(this.patientId, file));
+    },
+    displayMasks() {
+      return this.maskFiles.map(file => this.getPngUrl(this.patientId, file));
+    }
+  },
 };
 </script>
 
