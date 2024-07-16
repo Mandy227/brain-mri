@@ -1,123 +1,87 @@
 <template>
-  <el-row :gutter="20">
-    <el-col :span="12">
-      <patient-selection />
-    </el-col>
-    <el-col :span="12">
-      <el-button type="primary" class="custom-button" @click="datadisplay">数据展示</el-button>
-    </el-col>
-  </el-row>
-  <div class="image-display">
-    <div v-if="base64Images && base64Images.length > 0" class="image-gallery">
-      <div v-for="(base64Image, index) in base64Images" :key="index" class="gallery-image-container">
-        <el-row>
-          <el-col :span="24">
-            <img :src="base64Image" alt="Uploaded Image" class="gallery-image" />
-          </el-col>
-          <el-col :span="24">
-            <div class="image-name">{{ imageNames[index] }}</div>
-          </el-col>
-        </el-row>
-      </div>
+  <div class="image-gallery" ref="imageGallery">
+    <div v-if="imageFiles.length === 0 && maskFiles.length === 0" class="empty-gallery">
+      等待上传
     </div>
-    <div v-else>等待图片上传</div>
+    <img v-for="(imageUrl, index) in displayImages" :key="index" :src="imageUrl" alt="Image" />
+    <img v-for="(maskUrl, index) in displayMasks" :key="`mask-${index}`" :src="maskUrl" alt="Mask" />
   </div>
+  <el-button type="primary" class="custom-button" @click="fetchData">数据展示</el-button>
 </template>
 
-
-
-
 <script>
-import Tiff from 'tiff.js';
-import PatientSelection from './PatientSelection.vue';
+import axios from 'axios';
 
 export default {
-  components: {
-    PatientSelection,
-  },
   data() {
     return {
-      base64Images: [],
-      imagePaths: [  
-        // ...可以添加更多图片路径
-      ]
+      loading: false,
+      error: null,
+      patientId: null,
+      imageFiles: [],
+      maskFiles: []
     };
   },
   computed: {
-    imageNames() {
-      return this.imagePaths.map(path => {
-        const fileName = path.split('/').pop(); // 提取文件名
-        return fileName;
-      });
+    displayImages() {
+      return this.imageFiles.map(file => this.getPngUrl(this.patientId, file));
+    },
+    displayMasks() {
+      return this.maskFiles.map(file => this.getPngUrl(this.patientId, file));
     }
-  },
-  mounted() {
-    this.loadImages();
   },
   methods: {
-    async loadImages() {
-      for (const imagePath of this.imagePaths) {
-        try {
-          const response = await fetch(imagePath);
-          if (!response.ok) throw new Error('Network response was not ok.');
-          const arrayBuffer = await response.arrayBuffer();
-          const tiff = new Tiff({ buffer: arrayBuffer });
-          const canvas = tiff.toCanvas();
-          if (canvas) {
-            this.base64Images.push(canvas.toDataURL('image/png'));
-          } else {
-            console.error('无法加载图片，请尝试其他图片或格式。');
-          }
-        } catch (error) {
-          console.error('加载图片出错:', error);
-        }
-      }
-    }
+    fetchData() {
+      this.loading = true;
+      this.error = null;
+      this.patientId = this.$refs.patientSelection.selectedModel;
+      const patientSelection = this.$refs.patientSelection.selectedModel;
+      const url = `/datadisplay?patient=${encodeURIComponent(patientSelection)}`;
+      console.log("url", url);
+      axios.get(url)
+        .then(response => {
+          // 处理响应数据
+          console.log("这是imageFiles", response.data.images);
+          // 假设后端返回的数据格式是 { data: 'some data' }
+          // 这里根据实际返回的数据格式来更新状态
+          this.imageFiles = response.data.images;
+          this.maskFiles = response.data.mask_images;
+        })
+        .catch(err => {
+          // 处理错误情况
+          console.error(err);
+          this.error = err.message;
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    getPngUrl(patientId, image) {
+      // 构造转换 URL
+      return `/convert-tiff-to-png/${patientId}/${image}`;
+    },
   }
 };
 </script>
 
-<style scoped>
-.image-display {
-  width: 50%;
-  display: flex;
-  flex-direction: column; 
-  justify-content: center; 
-  align-items: center;
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  background-color: #f5f5f5;
-  overflow: hidden; /* 隐藏滚动条 */
-}
-
+<style>
 .image-gallery {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
+  gap: 10px; /* 图片之间的间隔 */
+  max-height: 500px; /* 设置固定高度 */
+  overflow-y: auto; /* 如果内容超出，添加竖直滚动条 */
+}
+
+.image-gallery img {
+  max-width: 100%; /* 确保图片不会超出容器宽度 */
+  height: auto; /* 保持图片的宽高比 */
+  border: 1px solid #ccc; /* 可选：为图片添加边框 */
+}
+
+.empty-gallery {
   width: 100%;
-}
-
-.gallery-image-container {
-  flex: 0 0 25%; 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px; /* 添加顶部边距以避免重叠 */
-}
-
-.gallery-image {
-  max-width: 90%; 
-  max-height: 200px;
-  margin: 5px; 
-  display: block;
-}
-
-.image-name {
-  /* 添加样式以确保图片名称正确显示在图片下方 */
-  margin-top: 10px; /* 添加底部边距以避免重叠 */
-  font-size: 6px;
-  margin-left: 10px;
+  text-align: center;
+  padding: 20px; /* 添加一些内边距 */
 }
 </style>
-

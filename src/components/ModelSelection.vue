@@ -17,11 +17,10 @@ export default {
     return {
       selectedModel: '',
       models: [
-        { value: 'model1', label: 'deeplabv3' },
-        { value: 'model2', label: 'deeplabv3_plus' },
-        { value: 'model3', label: 'unet' },
-        { value: 'model4', label: 'unet_plus' },
-        { value: 'model5', label: 'unet_raw' }
+        { value: 'deeplabv3', label: 'deeplabv3' },
+        { value: 'deeplabv3_plus', label: 'deeplabv3_plus' },
+        { value: 'unet_new', label: 'unet_new' },
+        { value: 'unet_plus', label: 'unet_plus' },
       ]
     };
   }

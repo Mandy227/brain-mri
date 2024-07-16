@@ -9,9 +9,6 @@
           </el-col>
           <el-col :span="4">
             <el-button type="primary" class="custom-button" @click="fetchData">数据展示</el-button>  
-            
-            <!-- <el-button type="primary" class="custom-button" @click="openDirectory1">打开目录</el-button>
-            <input type="file" ref="fileInput1" style="display: none;" @change="uploadImages1" multiple accept=".tif,.jpg,.png"> -->
           </el-col>
         </el-row>
       </el-col>
@@ -30,108 +27,76 @@
       </el-col>
     </el-row>
     <el-row :gutter="20" style="margin-top: 20px;">
-      <el-col :span="8">
-        <div style="text-align: center; margin-top: 10px;">原始图像</div>
-        <image-displays :base64Images="comparisonImageArray" style="margin-top: 20px;"/>
+      <el-col :span="8" style="margin-top: 20px;">
+        <div class="image-container">
+          <div v-if="displayImages.length === 0">
+            原始图像
+          </div>
+          <div v-for="(pngUrl, index) in displayImages" :key="`image-${index}`">
+            <img :src="pngUrl" alt="Converted Image" />
+          </div>
+        </div>
       </el-col>
-      <el-col :span="8">
-        <div style="text-align: center; margin-top: 10px;">mask图像</div>
-        <image-displays :base64Images="comparisonImageArray4" style="margin-top: 20px;"/>
+      <el-col :span="8" style="margin-top: 20px;">
+        <div class="image-container">
+          <div v-if="displayMasks.length === 0">
+            mask图像
+          </div>
+          <div v-for="(pngUrl, index) in displayMasks" :key="`mask-${index}`">
+            <img :src="pngUrl" alt="Converted Mask" />
+          </div>
+        </div>
       </el-col>
-      <el-col :span="8">
-        <div style="text-align: center; margin-top: 10px;">预测图像</div>
-        <image-displays :base64Images="comparisonImageArray5" style="margin-top: 20px;" />
+      <el-col :span="8" style="margin-top: 20px;">
+        <div class="image-container">
+          <div v-if="sortedPreimageFiles.length === 0">
+            预测图像
+          </div>
+          <div v-for="(image, index) in sortedPreimageFiles" :key="index">
+             <img :src="'/predimage/' + model + '/' + parameters + '/'+ patientId + '/' + image" alt="Image">
+          </div>
+        </div>
       </el-col>
     </el-row>
     <el-row :gutter="70" style="margin-top: 20px;">
       <el-col :span="12">
         <el-row :gutter="20">
           <el-col :span="4">
-            <el-button type="primary" class="custom-button" @click="fetchAndDisplayWholeBrainTumorImage" style="margin-top:40px;">全脑空间肿瘤</el-button>
-          </el-col>
-        </el-row>
-        <image-displays :base64Images="comparisonImageArray2" style="margin-top: 20px;"/>
-      </el-col>
-      <el-col :span="12">
-        <el-row :gutter="20">
-          <el-col :span="4">
             <el-button type="primary" class="custom-button" @click="fetchAndDisplay3DTumorImage" style="margin-top:40px;">三维肿瘤</el-button>
           </el-col>
         </el-row>
-          <!-- <div>
-            <vtk-view :modelUrl="'/path/to/your/model.vtk'"></vtk-view>
-          </div> -->
-          <image-displays :base64Images="comparisonImageArray1" style="margin-top: 20px;"/>
       </el-col>
     </el-row>
-    <el-row >
-      <TiffImageDisplay style="margin-top: 20px;"/>
+    <el-row :gutter="70" style="margin-top: 20px;">
+      <stl-viewer ref="stlViewer" />
     </el-row>
-  </div>
-  <image-displays :base64Images="base64ImagesArray" />
-  <test-try @images-fetched="handleImagesFetched"></test-try>
-  <!-- 展示图像 -->
-  <div>
-    <div v-for="(pngUrl, index) in displayImages" :key="index">
-      <img :src="pngUrl" alt="Converted Image" />
-    </div>
-      <!-- <div v-for="(image, index) in imageFiles" :key="index">
-        <img :src="'http://localhost:5000/image/' + patientId + '/' + image" alt="Image">
-      </div> -->
-    </div>
     
-    <div v-for="(pngUrl, index) in displayMasks" :key="index">
-      <img :src="pngUrl" alt="Converted Mask" />
-    </div>
-
+  </div>
 </template>
 
 <script>
 import ModelSelection from '../components/ModelSelection.vue';
 import ParameterSelection from '../components/ParameterSelection.vue';
-import ImageDisplays from '../components/ImageDisplays.vue';
 import axios from 'axios';
 import PatientSelection from '../components/PatientSelection.vue';
-// import ImageDisplay from '@/components/ImageDisplay.vue';
-// import VtkView from '@/components/VtkView.vue';
-import TestTry from '@/components/TestTry.vue';
-import TiffImageDisplay from '../components/TiffImageDisplay.vue';
+import StlViewer from '../components/StlViewer.vue';
 
 export default {
   components: {
     ModelSelection,
     ParameterSelection,
-    ImageDisplays,
     PatientSelection,
-    TestTry,
-    TiffImageDisplay,
-    // ImageDisplay,
-    // VtkView
+    StlViewer,
   },
   data() {
     return {
       patientId: '',
-      imageUrl1: [],
-      imageUrl2: '',
-      imageUrl3: '',
-      imageUrl5: '',
-      comparisonImageArray:[],
-      comparisonImageArray1:[],
+      model:'',
+      parameters:'',
       comparisonImageArray2:[],
-      comparisonImageArray3:[],
-      comparisonImageArray4:[],
-      comparisonImageArray5:[],
-      base64ImagesArray: [
-        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-        'data:image/tiff;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-        "data:image/png;base64,R0lGODlhHAAmAKIHAKqqqsvLy0hISObm5vf394uLiwAAAP///yH5B…EoqQqJKAIBaQOVKHAXr3t7txgBjboSvB8EpLoFZywOAo3LFE5lYs/QW9LT1TRk1V7S2xYJADs="
-        // 更多Base64编码的图片
-      ],
       imageFiles: [],
       maskFiles: [],
+      preimageFiles:[],
     };
   },
   mounted() {
@@ -142,50 +107,12 @@ export default {
     }
   },
   methods: {
-    openDirectory1() {
-      this.$refs.fileInput1.click();
-    },
-    // uploadImages1(event) {
-    //   const files = event.target.files;
-    //   if (files.length === 0) return;
-
-    //   const formData = new FormData();
-    //   for (let i = 0; i < files.length; i++) {
-    //     formData.append('images[]', files[i]);
-    //   }
-    //   axios.post("/upload-images", formData)
-    //     .then(response => {
-    //       console.log("图片上传成功", response.data);
-    //       if (response.data.code == "1") {
-    //         this.comparisonImageArray = response.data.imageUrl;
-    //       } else if (response.data.code == "-1") {
-    //         console.log(response.data.message);
-    //       } else {
-    //         console.log("未处理的响应代码", response.data.code);
-    //       }
-    //     })
-    //     .catch(error => {
-    //       if (error.response) {
-    //         // 根据错误响应状态码进行处理
-    //         console.error("图片上传失败，服务器返回错误:", error.response.data);
-    //         console.error("状态码:", error.response.status);
-    //         console.error("响应头部:", error.response.headers);
-    //       } else if (error.request) {
-    //         // 处理没有收到响应的情况
-    //         console.error("图片上传失败，没有收到响应:", error.request);
-    //       } else {
-    //         // 处理其他错误情况
-    //         console.error("图片上传失败，发生其他错误:", error.message);
-    //       }
-    //       console.error("请求配置:", error.config);
-    //     });
-    // },
     fetchData() {
       this.loading = true;
       this.error = null;
       this.patientId = this.$refs.patientSelection.selectedModel;
       const patientSelection = this.$refs.patientSelection.selectedModel;
-      const url = `http://localhost:5000/datadisplay?patient=${encodeURIComponent(patientSelection)}`;
+      const url = `/datadisplay?patient=${encodeURIComponent(patientSelection)}`;
       console.log("url", url);
       axios.get(url)
         .then(response => {
@@ -207,41 +134,38 @@ export default {
     },
     getPngUrl(patientId, image) {
       // 构造转换 URL
-      return `http://localhost:5000/convert-tiff-to-png/${patientId}/${image}`;
+      return `/convert-tiff-to-png/${patientId}/${image}`;
     },
-    datadisplay() {
+    startTraining() {
+      this.loading = true;
+      this.error = null;
+      this.patientId = this.$refs.patientSelection.selectedModel;
+      this.model=this.$refs.modelSelection.selectedModel;
+      this.parameters = this.$refs.parameterSelection.selectedModel;
       const patientSelection = this.$refs.patientSelection.selectedModel;
-      const requestData = {
-        patient: patientSelection
-      };
-      console.log(requestData);
-      axios.post("/datadisplay", requestData)
+      const modelSelection = this.$refs.modelSelection.selectedModel;
+      const parameterSelection = this.$refs.parameterSelection.selectedModel;
+      const url = '/train';
+      const requestData={
+        patient: patientSelection,
+        model: modelSelection,
+        parameters: parameterSelection
+      }
+      console.log("url", url);
+      axios.post(url,requestData)
         .then(response => {
-          console.log("得到回应", response.data);
-          if (response.data.code == "1") {
-            // 将Base64编码的图片数组赋值给组件的props
-            this.comparisonImageArray = response.data[1][0];//response.data.result_image1返回Base64编码的字符串数组
-            this.comparisonImageArray4 = response.data[0];
-          } else if (response.data.code == "-1") {
-            console.log(response.data.message);
-          } else {
-            console.log("unhandled code, ", response.data.code);
-          }
+          // 处理响应数据
+          console.log("这是imageFiles", response.data.pred_image);
+          // 修改
+          this.preimageFiles = response.data.pred_image;
         })
-        .catch(error => {
-          if (error.response) {
-            // 根据错误响应状态码进行处理
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            // 处理没有收到响应的情况
-            console.log(error.request);
-          } else {
-            // 处理其他错误情况
-            console.log('Error', error.message);
-          }
-          console.log(error.config);
+        .catch(err => {
+          // 处理错误情况
+          console.error(err);
+          this.error = err.message;
+        })
+        .finally(() => {
+          this.loading = false;
         });
     },
     fetchAndDisplay3DTumorImage() {
@@ -300,48 +224,39 @@ export default {
           console.log(error.config);
         });
     },
-    startTraining() {
-      const modelSelection = this.$refs.modelSelection.selectedModel;
-      const parameterSelection = this.$refs.parameterSelection.selectedModel;
-      const requestData = {
-        model: modelSelection,
-        parameters: parameterSelection,
-      };
-      axios.post("/train", requestData)
-        .then(response => {
-          console.log("得到回应", response.data);
-          if (response.data.code == "1") {
-            this.comparisonImageArray5 = response.data.result_image_urls;
-          } else if (response.data.code == "-1") {
-            console.log(response.data.message);
-          } else {
-            console.log("unhandled code, ", response.data.code);
-          }
-        })
-        .catch(error => {
-          if (error.response) {
-            // 根据错误响应状态码进行处理
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else if (error.request) {
-            // 处理没有收到响应的情况
-            console.log(error.request);
-          } else {
-            // 处理其他错误情况
-            console.log('Error', error.message);
-          }
-          console.log(error.config);
-        });
-    }
   },
   computed: {
+    // displayImages() {
+    //   let images = this.imageFiles.map(file => this.getPngUrl(this.patientId, file));
+    //   return images.sort((a, b) => a.localeCompare(b));
+    // },
+    // displayMasks() {
+    //   let images = this.maskFiles.map(file => this.getPngUrl(this.patientId, file));
+    //   return images.sort((a, b) => a.localeCompare(b));
+    // },
     displayImages() {
-      return this.imageFiles.map(file => this.getPngUrl(this.patientId, file));
+      let images = this.imageFiles.map(file => this.getPngUrl(this.patientId, file));
+      return images.sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)[0], 10);
+        const numB = parseInt(b.match(/\d+/)[0], 10);
+        return numA - numB;
+      });
     },
     displayMasks() {
-      return this.maskFiles.map(file => this.getPngUrl(this.patientId, file));
-    }
+      let images = this.maskFiles.map(file => this.getPngUrl(this.patientId, file));
+      return images.sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)[0], 10);
+        const numB = parseInt(b.match(/\d+/)[0], 10);
+        return numA - numB;
+      });
+    },
+    sortedPreimageFiles() {
+      return [...this.preimageFiles].sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)[0], 10);
+        const numB = parseInt(b.match(/\d+/)[0], 10);
+        return numA - numB;
+      });
+    },
   },
 };
 </script>
@@ -353,5 +268,15 @@ h1 {
 }
 .custom-button {
   background-color: #235f9a;
+}
+.image-container {
+  width: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  text-align: center;
+}
+.image-container img {
+  width: 100%;
+  margin-bottom: 10px;
 }
 </style>

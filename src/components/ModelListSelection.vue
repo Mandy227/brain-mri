@@ -18,8 +18,8 @@ export default {
       // 将 selectedModel 改为数组类型
       selectedModels: [],
       models: [
-        { value: 'model1', label: 'deeplabv3' },
-        { value: 'model2', label: 'deeplabv3_plus' },
+        { value: 'deeplabv3', label: 'deeplabv3' },
+        { value: 'deeplabv3_plus', label: 'deeplabv3_plus' },
         { value: 'model3', label: 'unet' },
         { value: 'model4', label: 'unet_plus' },
         { value: 'model5', label: 'unet_raw' }

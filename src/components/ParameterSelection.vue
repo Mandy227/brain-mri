@@ -17,8 +17,8 @@ export default {
     return {
       selectedModel: '',
       models: [
-        { value: 'model1', label: '参数1' },
-        { value: 'model2', label: '参数2' }
+        { value: 'resnet50', label: 'resnet50' },
+        { value: 'efficientnet-b2', label: 'efficientnet-b2' }
       ]
     };
   }
