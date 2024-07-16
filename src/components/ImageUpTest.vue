@@ -13,7 +13,7 @@
       选择的图片：{{ patientId }}
     </div>
     <!-- 显示上传的图片或占位符 -->
-    <el-row gutter="20" style="margin-top: 30px;">``
+    <el-row gutter="20" style="margin-top: 30px;">
       <el-col :span="8">
         <div class="image-container">
           <img v-if="imageSrc" :src="imageSrc" alt="上传的图片" class="uploaded-image">
